@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+    <title>DiffVis</title>
+    <script type="text/javascript" src="../d3.min.js"></script>
+    <style type="text/css">
+body {
+  font: 10px sans-serif;
+}
+
+.diffvis {
+    stroke: green;
+    stroke-width: 5;
+}
+
+.minivis {
+    stroke: blue;
+    stroke-width: 1;
+    fill: none;
+}
+
+.minivis .left {
+    stroke: #FFD700;
+    stroke-width: 1;
+    fill: none;
+}
+
+.minivis .right {
+    stroke: #EEEEEE;
+    stroke-width: 1;
+    fill: none;
+}
+    </style>    
+    <script type="text/javascript" src="../diffvis.js"></script>
+  </head>
+  <body>
+    <div id="container" style="width:700px">
+		<div id="header" style="background-color:#FFA500;">
+			<h1 style="margin-bottom:0;">Diffs</h1>
+		</div>
+		<div id="text1" style="background-color:#FFD700;width:300px;height:500px;float:left;overflow:auto;">
+			<h2 id="t1">Text 1</h2>
+		</div>
+
+		<div id="diffs" style="background-color:#FFFFFF;width:100px;float:left;">
+<!--
+			<h2>Diffs</h2>
+			<svg width="100px" height="300px">
+			  <g stroke="green">
+				<line x1="5" y1="10" x2="95" y2="10"/>
+			  </g>
+			</svg>
+-->
+		</div>
+
+		<div id="text2" style="background-color:#EEEEEE;width:300px;height:500px;float:left;overflow:auto;">
+			<h2 id="t2">Text 2</h2>
+		</div>
+
+		<div id="footer" style="background-color:#FFA500;clear:both;text-align:center;">
+			Example
+		</div>
+	</div>
+    <script type="text/javascript">
+    function doDiffs() {
+    	var diffs = new DiffVis()
+                .setScrolls('#text1', '#text2');
+    	var lines = d3.range(100);
+    	var t1 = d3.select("#text1")
+    		.on('scroll', function() { diffs.scroll(); });
+    	t1.selectAll("p")
+    			.data(lines)
+    		.enter().insert("p")
+    			.attr("id", function(d) { return 't1_l'+d; })
+    			.text(function(d) { return "Line "+d; });
+    	var t2 = d3.select("#text2")
+    		.on('scroll', function() { diffs.scroll(); });
+    	t2.selectAll("p")
+    			.data(lines)
+    			.enter().insert("p")
+    			.attr("id", function(d) { return 't2_l'+d; })
+    			.text(function(d) { return "Line "+d; });
+    	var ml = lines.map(function(d) { return [ 't1_l'+d, 't2_l'+d]; });
+    	diffs.setMatchList(ml)
+    		.setWidth(100)
+                .setup('#text1', '#text2')
+    		.setTotalHeight(500)
+                .createDOMElement();
+
+        var minidiffs = new DiffVis(diffs)
+                   .setWidth(20)
+                   .setHeight(700)
+                   .setHorizontal()
+                   .setFramed()
+                   .setClassName("minivis")
+                   .setSelector("#header")
+                   .setup()
+                   .createDOMElement();
+        minidiffs.showScroll();
+        d3.select("#text1")
+    		.on('scroll.mini', function() { minidiffs.showScroll(); });
+    	d3.select("#text2")
+    		.on('scroll.mini', function() { minidiffs.showScroll(); });
+
+    }
+    doDiffs();
+    </script>
+</body>
+</html>
